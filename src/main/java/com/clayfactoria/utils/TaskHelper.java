@@ -7,9 +7,7 @@ import com.hypixel.hytale.component.*;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
-import com.hypixel.hytale.server.core.asset.type.item.config.Item;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
-import com.hypixel.hytale.server.core.inventory.InventoryComponent.Hotbar;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
@@ -40,9 +38,15 @@ public final class TaskHelper {
     public static NPCEntity getNPCEntity(
         @Nonnull Ref<EntityStore> ref) {
         Store<EntityStore> store = ref.getStore();
+        return getNPCEntity(ref, store);
+    }
+
+    @Nonnull
+    public static NPCEntity getNPCEntity(
+        @Nonnull Ref<EntityStore> ref, @Nonnull ComponentAccessor<EntityStore> componentAccessor) {
         ComponentType<EntityStore, NPCEntity> component = NPCEntity.getComponentType();
         Objects.requireNonNull(component, "NPCEntity Component Type was null");
-        NPCEntity npcEntity = store.getComponent(ref, component);
+        NPCEntity npcEntity = componentAccessor.getComponent(ref, component);
         Objects.requireNonNull(npcEntity, "NPCEntity was null");
         return npcEntity;
     }
@@ -108,6 +112,22 @@ public final class TaskHelper {
             return null;
         }
         return getItemContainerFromComponent(processingBenchBlock, containerSlot);
+    }
+
+    public static ItemContainer getItemContainerForCurrentJob(Ref<EntityStore> entityRef, ContainerSlot containerSlot) {
+        NPCEntity npcEntity = getNPCEntity(entityRef);
+        Store<EntityStore> store = entityRef.getStore();
+        JobComponent jobComponent = Objects.requireNonNull(
+            store.getComponent(entityRef, JobComponent.getComponentType()));
+
+        Job currentJob = Objects.requireNonNull(jobComponent.getCurrentJob());
+        assert currentJob.getLocation() != null;
+        ItemContainer itemContainer = TaskHelper.getItemContainerAtPos(
+            Objects.requireNonNull(npcEntity.getWorld()),
+            currentJob.getLocation(),
+            containerSlot);
+        Objects.requireNonNull(itemContainer);
+        return itemContainer;
     }
 
     public static Ref<ChunkStore> getBlockComponentHolderDirectReference(World world, int x,
@@ -232,12 +252,6 @@ public final class TaskHelper {
         Objects.requireNonNull(npcEntity.getRole())
             .getStateSupport()
             .setState(npcRef, "Idle", null, store);
-    }
-
-    public static ItemStack getHeldItemstack(Store<EntityStore> store, Ref<EntityStore> entityRef) {
-        Hotbar hotbar = store.getComponent(entityRef, Hotbar.getComponentType());
-        assert hotbar != null;
-        return hotbar.getActiveItem();
     }
 
     public static List<String> getHotbarItems(Role role) {
