@@ -105,7 +105,8 @@ public class WorkTaskExecutor extends PointTaskExecutor {
         CombinedItemContainer combinedSurroundingResources = CraftingUtils
             .getCombinedSurroundingResources(npcRef, blockRef);
         List<MaterialQuantity> materials = CraftingUtils.getInputMaterials(recipe, 1);
-        return combinedSurroundingResources.canRemoveMaterials(materials);
+        return combinedSurroundingResources.canRemoveMaterials(materials)
+            && !TaskHelper.areExtraItemsInInventory(npcRef);
     }
 
     @Nullable
@@ -151,6 +152,9 @@ public class WorkTaskExecutor extends PointTaskExecutor {
 
     @Override
     public Task relevantNextTask(List<Task> availableOptions) {
+        if (availableOptions.contains(Task.DEPOSIT)) {
+            return Task.DEPOSIT;
+        }
         return Task.WORK;
     }
 

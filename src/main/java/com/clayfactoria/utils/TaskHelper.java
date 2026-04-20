@@ -9,6 +9,7 @@ import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class TaskHelper {
 
@@ -212,6 +214,19 @@ public final class TaskHelper {
             LOGGER.atSevere().log(e.getMessage());
             return null;
         }
+    }
+
+    public static boolean areExtraItemsInInventory(Ref<EntityStore> ref) {
+        Store<EntityStore> store = ref.getStore();
+        CombinedItemContainer inventory = InventoryComponent.getCombined(store, ref,
+            InventoryComponent.EVERYTHING);
+        AtomicBoolean otherItemsFound = new AtomicBoolean(false);
+        inventory.forEach((_, itemStack) -> {
+            if (itemStack != null && !itemStack.getItemId().contains("Sickle")) {
+                otherItemsFound.set(true);
+            }
+        });
+        return otherItemsFound.get();
     }
 
 }
