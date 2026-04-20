@@ -63,6 +63,12 @@ public class JobComponent implements Component<EntityStore> {
                 (comp) -> comp.filterItem)
             .documentation("ID of the NPC's current filter item.")
             .add()
+            .append(
+                new KeyedCodec<>("JobStartTime", Codec.LONG),
+                (comp, jobStartTime) -> comp.jobStartTime = jobStartTime,
+                (comp) -> comp.jobStartTime)
+            .documentation("The time at which the job started, if applicable.")
+            .add()
             .build();
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
     @Getter
@@ -85,6 +91,9 @@ public class JobComponent implements Component<EntityStore> {
     @Getter
     @Setter
     private String filterItem;
+    @Getter
+    @Setter
+    private long jobStartTime;
 
     public static ComponentType<EntityStore, JobComponent> getComponentType() {
         return ClayFactoria.ownerComponentType;
@@ -117,6 +126,7 @@ public class JobComponent implements Component<EntityStore> {
         }
         jobComponent.isComplete = this.isComplete;
         jobComponent.filterItem = this.filterItem;
+        jobComponent.jobStartTime = this.jobStartTime;
         return jobComponent;
     }
 }
