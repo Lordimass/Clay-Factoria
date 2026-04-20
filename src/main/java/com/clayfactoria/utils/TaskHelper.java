@@ -22,7 +22,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -49,48 +48,6 @@ public final class TaskHelper {
         NPCEntity npcEntity = componentAccessor.getComponent(ref, component);
         Objects.requireNonNull(npcEntity, "NPCEntity was null");
         return npcEntity;
-    }
-
-    @Nullable
-    public static Component<ChunkStore> getBlockEntity(Ref<EntityStore> ref) {
-        Store<EntityStore> store = ref.getStore();
-        NPCEntity npcEntity = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
-        Objects.requireNonNull(npcEntity);
-        JobComponent jobComponent = store.getComponent(ref, JobComponent.getComponentType());
-        assert jobComponent != null;
-        World world = Objects.requireNonNull(npcEntity.getWorld());
-        Job job = jobComponent.getCurrentJob();
-        if (job == null) {
-            return null;
-        }
-        Vector3i pos = job.getLocation();
-        Vector3i baseBlock = BlockUtils.getBaseBlock(pos, world);
-        Holder<ChunkStore> holder = world.getBlockComponentHolder(baseBlock.x, baseBlock.y,
-            baseBlock.z);
-        if (holder == null) return null;
-
-        ItemContainerBlock itemContainerBlock = holder.getComponent(
-            ItemContainerBlock.getComponentType());
-        ProcessingBenchBlock processingBenchBlock = holder.getComponent(
-            ProcessingBenchBlock.getComponentType());
-
-        switch (job.getTask()) {
-            case POSITION:
-                return null;
-            case TAKE, DEPOSIT: // Find a container
-                if (itemContainerBlock != null) {
-                    return itemContainerBlock;
-                }
-                if (processingBenchBlock != null) {
-                    return processingBenchBlock;
-                }
-            case WORK: // Find a processing bench
-                if (processingBenchBlock != null) {
-                    return processingBenchBlock;
-                }
-        }
-
-        return null;
     }
 
     public static ItemContainer getItemContainerAtPos(
@@ -171,18 +128,6 @@ public final class TaskHelper {
         } else {
             return null;
         }
-    }
-
-    private static List<Vector3i> getAdjacentDirections() {
-        // Check surrounding blocks
-        Vector3i[] directions = {
-            new Vector3i(0, 0, -1), new Vector3i(1, 0, 0), new Vector3i(0, 0, 1), new Vector3i(-1, 0, 0)
-        };
-
-        // Shuffle order to prevent order of check being predictable
-        List<Vector3i> shuffled = Arrays.asList(directions);
-        Collections.shuffle(shuffled);
-        return shuffled;
     }
 
     public static boolean transferItem(ItemContainer source, ItemContainer target) {

@@ -132,9 +132,11 @@ public class CraftingUtils {
                 return;
             }
             for (ItemStack itemStack : itemStacks) {
+                CombinedItemContainer inventory = InventoryComponent
+                    .getCombined(componentAccessor, ref, InventoryComponent.EVERYTHING);
                 if (!ItemStack.isEmpty(itemStack)) {
-                    SimpleItemContainer.addOrDropItemStack(componentAccessor, ref,
-                        InventoryComponent.getCombined(ref.getStore(), ref), itemStack);
+                    SimpleItemContainer
+                        .addOrDropItemStack(componentAccessor, ref, inventory, itemStack);
                 }
             }
 
@@ -188,17 +190,25 @@ public class CraftingUtils {
                                     @Nonnull CraftingRecipe recipe,
                                     int quantity) {
         CombinedItemContainer combinedSurroundingResources = getCombinedSurroundingResources(npcRef, blockRef);
-        if (combinedSurroundingResources == null) return false;
         Store<EntityStore> npcStore = npcRef.getStore();
         return craftItem(npcRef, npcStore, recipe, quantity, combinedSurroundingResources);
     }
 
+    /**
+     * Construct a {@link CombinedItemContainer} consisting of the NPC's inventory and the item
+     * containers around the current job location if it exists. If the job location does not exist,
+     * it will use the NPC's location instead.
+     *
+     * @param npcRef   The reference to the NPC.
+     * @param blockRef The reference to the block around which to fetch the {@link MaterialExtraResourcesSection}
+     * @return A combined item container consisting of the NPC's inventory and surrounding containers.
+     */
     @Nonnull
     public static CombinedItemContainer getCombinedSurroundingResources(Ref<EntityStore> npcRef,
                                                                         Ref<ChunkStore> blockRef) {
         Store<EntityStore> npcStore = npcRef.getStore();
         NPCEntity npc = TaskHelper.getNPCEntity(npcRef, npcStore);
-        CombinedItemContainer npcInventory = InventoryComponent.getCombined(npcStore, npcRef);
+        CombinedItemContainer npcInventory = InventoryComponent.getCombined(npcStore, npcRef, InventoryComponent.EVERYTHING);
 
         Vector3i loc;
         // Try to use the current job location, but if this fails, just search around the NPC for containers.
