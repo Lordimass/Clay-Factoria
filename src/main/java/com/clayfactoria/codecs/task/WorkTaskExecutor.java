@@ -13,8 +13,10 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.item.config.CraftingRecipe;
+import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.server.core.inventory.MaterialQuantity;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -55,7 +57,6 @@ public class WorkTaskExecutor extends PointTaskExecutor {
             || jobComponent.getFilterItem() == null
             || currentJob.getLocation() == null
         ) return false;
-        setBlockInteractionState("default", world, currentJob.getLocation());
 
         BlockType blockType = world.getBlockType(currentJob.getLocation());
         assert blockType != null;
@@ -93,6 +94,12 @@ public class WorkTaskExecutor extends PointTaskExecutor {
         }
     }
 
+    private static void cleanUp(Ref<EntityStore> ref, World world, Vector3i blockPos, JobComponent jobComponent) {
+        AnimationUtils.stopAnimation(ref, AnimationSlot.Status, ref.getStore());
+        setBlockInteractionState("default", world, blockPos);
+        jobComponent.setJobStartTime(0);
+    }
+
     private static boolean canDoCraft(Ref<EntityStore> npcRef, Ref<ChunkStore> blockRef) {
         Store<EntityStore> store = npcRef.getStore();
         NPCEntity npcEntity = getNPCEntity(npcRef);
@@ -101,16 +108,23 @@ public class WorkTaskExecutor extends PointTaskExecutor {
         World world = Objects.requireNonNull(npcEntity.getWorld());
         Vector3i pos = Objects.requireNonNull(currentJob.getLocation());
         BlockType blockType = world.getBlockType(pos);
-        if (blockType == null || blockType.getBench() == null) return false;
+        if (blockType == null || blockType.getBench() == null) {
+            cleanUp(npcRef, world, pos, jobComponent);
+            return false;
+        }
 
         CraftingRecipe recipe = findCraftingRecipe(blockType, jobComponent);
-        if (recipe == null) return false;
+        if (recipe == null) {
+            cleanUp(npcRef, world, pos, jobComponent);
+            return false;
+        }
 
         CombinedItemContainer combinedSurroundingResources = CraftingUtils
             .getCombinedSurroundingResources(npcRef, blockRef);
         List<MaterialQuantity> materials = CraftingUtils.getInputMaterials(recipe, 1);
         if (!combinedSurroundingResources.canRemoveMaterials(materials)
             || TaskHelper.areExtraItemsInInventory(npcRef)) {
+            cleanUp(npcRef, world, pos, jobComponent);
             return false;
         }
 
@@ -119,6 +133,7 @@ public class WorkTaskExecutor extends PointTaskExecutor {
             if (recipe.getTimeSeconds() == 0) {
                 setBlockInteractionState("CraftCompletedInstant", world, pos);
             } else {
+                AnimationUtils.playAnimation(npcRef, AnimationSlot.Status, "Craft", false, store);
                 setBlockInteractionState("CraftCompleted", world, pos);
             }
             return false;
@@ -162,12 +177,13 @@ public class WorkTaskExecutor extends PointTaskExecutor {
 
     @Override
     public boolean execute(Ref<EntityStore> ref) {
+        Store<EntityStore> entityStore = ref.getStore();
         NPCEntity npcEntity = getNPCEntity(ref);
         Job currentJob = Objects.requireNonNull(JobComponent.getCurrentJob(ref));
         World world = Objects.requireNonNull(npcEntity.getWorld());
         Vector3i pos = Objects.requireNonNull(currentJob.getLocation());
-        JobComponent jobComponent = Objects.requireNonNull(ref.getStore().getComponent(ref, JobComponent.getComponentType()));
-        jobComponent.setJobStartTime(0);
+        JobComponent jobComponent = Objects.requireNonNull(entityStore.getComponent(ref, JobComponent.getComponentType()));
+        cleanUp(ref, world, pos, jobComponent);
 
         Ref<ChunkStore> blockRef = TaskHelper.getBlockComponentHolderDirectReference(world, pos.x,
             pos.y, pos.z);
