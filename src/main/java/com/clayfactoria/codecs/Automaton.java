@@ -11,29 +11,35 @@ public enum Automaton {
         "Clay Trork",
         "Trork_Clay",
         "Clay Trorks can be programmed to carry items from place to place.",
-        List.of(Task.TAKE, Task.DEPOSIT, Task.POSITION)),
+        List.of(Task.TAKE, Task.DEPOSIT, Task.POSITION),
+        "If a filter item is set, this automaton will only pick up items which match."
+    ),
     CLAY_KWEEBEC(
         "Clay Kweebec",
         "Kweebec_Clay",
         "Clay Kweebecs can be programmed to work at various stations to perform tasks like crafting and enabling furnaces!",
-        List.of(Task.WORK, Task.POSITION, Task.DEPOSIT)),
+        List.of(Task.WORK, Task.POSITION, Task.DEPOSIT),
+        "When crafting, this automaton will only craft the item set on it."),
     CLAY_FERAN(
         "Clay Feran",
         "Feran_Clay",
         "Clay Ferans can be programmed to harvest crops in an area.",
-        List.of(Task.HARVEST, Task.DEPOSIT, Task.POSITION)
+        List.of(Task.HARVEST, Task.DEPOSIT, Task.POSITION),
+        null
     );
 
     public final String name;
     public final String roleName;
     public final String description;
     public final List<Task> tasks;
+    public final String filterItemDescription;
 
-    Automaton(String name, String roleName, String description, List<Task> tasks) {
+    Automaton(String name, String roleName, String description, List<Task> tasks, String filterItemDescription) {
         this.name = name;
         this.roleName = roleName;
         this.description = description;
         this.tasks = tasks;
+        this.filterItemDescription = filterItemDescription;
     }
 
     @Nullable

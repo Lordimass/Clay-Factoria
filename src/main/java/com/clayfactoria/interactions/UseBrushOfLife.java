@@ -3,6 +3,7 @@ package com.clayfactoria.interactions;
 import com.clayfactoria.codecs.Task;
 import com.clayfactoria.components.BrushComponent;
 import com.clayfactoria.components.JobBoxComponent;
+import com.clayfactoria.components.JobComponent;
 import com.clayfactoria.utils.BlockUtils;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Ref;
@@ -10,10 +11,13 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.math.shape.Box;
 import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.protocol.BenchType;
 import com.hypixel.hytale.protocol.BlockPosition;
 import com.hypixel.hytale.protocol.InteractionType;
 import com.hypixel.hytale.protocol.ItemSoundEvent;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.bench.Bench;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
 import com.hypixel.hytale.server.core.entity.InteractionContext;
 import com.hypixel.hytale.server.core.entity.entities.Player;
@@ -60,8 +64,8 @@ public class UseBrushOfLife extends SimpleInstantInteraction {
         Task task = brushComponent.getTask();
 
         // If no selected entity, let the user know...
-        if (brushComponent.getEntityId() == null
-            || world.getEntityRef(brushComponent.getEntityId()) == null) {
+        Ref<EntityStore> npcRef = world.getEntityRef(brushComponent.getEntityId());
+        if (brushComponent.getEntityId() == null || npcRef == null) {
             player.sendMessage(Message
                 .raw("You must first select the automaton you want to command!")
                 .color(Color.RED)
@@ -93,6 +97,7 @@ public class UseBrushOfLife extends SimpleInstantInteraction {
                             false, targetBlockLoc.toVector3d()));
                 }
             } else {
+                checkIsCraftingBench(targetBlockLoc, player, npcRef);
                 brushComponent.addTask(targetBlockLoc, player.getWorld(), store, ref);
             }
         } catch (IllegalStateException e) {
@@ -105,6 +110,22 @@ public class UseBrushOfLife extends SimpleInstantInteraction {
 
         SoundUtil.playItemSoundEvent(ref, store,
             Objects.requireNonNull(Item.getAssetMap().getAsset("Ingredient_Life_Essence")), ItemSoundEvent.Drop);
+    }
+
+    private void checkIsCraftingBench(Vector3i targetBlockLoc, Player player, Ref<EntityStore> npcRef) {
+        World world = player.getWorld();
+        assert world != null;
+        BlockType blockType = world.getBlockType(targetBlockLoc);
+        if (blockType == null) return;
+        Bench bench = blockType.getBench();
+        if (bench == null || bench.getType() == BenchType.Processing) return;
+        JobComponent jobComponent = npcRef.getStore().getComponent(npcRef, JobComponent.getComponentType());
+        if (jobComponent == null || jobComponent.getFilterItem() != null) return;
+        player.sendMessage(Message
+            .raw("Warning! You have set a crafting job but have not set an item. Interact with "
+                + "the automaton while holding the item you want it to craft to set it.")
+            .color(Color.YELLOW)
+        );
     }
 
     private Vector3i getTargetBlockLoc(@NonNull InteractionContext interactionContext, @NonNull World world, Task task) {
