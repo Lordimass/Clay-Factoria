@@ -3,13 +3,16 @@ package com.clayfactoria.codecs.task;
 import com.clayfactoria.codecs.Job;
 import com.clayfactoria.codecs.Task;
 import com.clayfactoria.components.JobComponent;
+import com.clayfactoria.utils.BlockUtils;
 import com.clayfactoria.utils.ContainerSlot;
 import com.clayfactoria.utils.TaskHelper;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 
@@ -35,6 +38,13 @@ public class DepositTaskExecutor extends PointTaskExecutor {
         Job job = jobComponent.getCurrentJob();
         assert job != null;
 
+        // Open container state
+        World world = npc.getWorld();
+        assert world != null;
+        Vector3i blockPos = Objects.requireNonNull(JobComponent.getCurrentJob(ref)).getLocation();
+        assert blockPos != null;
+        BlockUtils.setBlockInteractionState("OpenWindow", world, blockPos);
+
         // There must be space in the container for the item stack, and there must be space in hands
         return canDeposit(ContainerSlot.Input, npc, job, hotbarItems)
             || canDeposit(ContainerSlot.Fuel, npc, job, hotbarItems);
@@ -49,6 +59,14 @@ public class DepositTaskExecutor extends PointTaskExecutor {
         Job currentJob = Objects.requireNonNull(jobComponent.getCurrentJob());
 
         List<String> hotbarItems = TaskHelper.getHotbarItems(npcEntity.getRole());
+
+        // Close container state
+        assert jobComponent.getCurrentJob() != null;
+        Vector3i blockPos = jobComponent.getCurrentJob().getLocation();
+        World world = npcEntity.getWorld();
+        assert world != null;
+        assert blockPos != null;
+        BlockUtils.setBlockInteractionState("CloseWindow", world, blockPos);
 
         // Attempt to deposit as fuel first (if this is a station with a fuel slot)
         if (deposit(ContainerSlot.Fuel, npcEntity, currentJob, hotbarItems)) {
