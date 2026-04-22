@@ -15,7 +15,7 @@ public enum Automaton {
     CLAY_KWEEBEC(
         "Clay Kweebec",
         "Kweebec_Clay",
-        "Clay Kweebecs can be programmed to work at various stations to perform tasks like enabling furnaces. Functionality is limited for now but will be much more advanced later in development!",
+        "Clay Kweebecs can be programmed to work at various stations to perform tasks like crafting and enabling furnaces!",
         List.of(Task.WORK, Task.POSITION, Task.DEPOSIT)),
     CLAY_FERAN(
         "Clay Feran",
