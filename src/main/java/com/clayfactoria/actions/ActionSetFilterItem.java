@@ -42,11 +42,11 @@ public class ActionSetFilterItem extends ActionBaseLogger {
         assert playerRefComp != null;
         assert player != null;
         if (itemInHand == null) {
-            player.sendMessage(Message.raw("Reset filter item").color(Color.RED));
+            player.sendMessage(Message.raw("Reset automaton's item").color(Color.RED));
             SoundUtil.playSoundEvent2dToPlayer(playerRefComp, SoundEvent.getAssetMap().getIndex("SFX_Drop_Items_Leather"), SoundCategory.SFX);
         } else {
             Message itemName = Message.translation(Objects.requireNonNull(itemInHand.getItem().getTranslationProperties().getName()));
-            player.sendMessage(Message.raw("Set filter item to ").insert(itemName).color(Color.GREEN));
+            player.sendMessage(Message.raw("Set automaton's item to ").insert(itemName).color(Color.GREEN));
             SoundUtil.playSoundEvent2dToPlayer(playerRefComp, SoundEvent.getAssetMap().getIndex("SFX_Drag_Items_Gems"), SoundCategory.SFX);
         }
 
