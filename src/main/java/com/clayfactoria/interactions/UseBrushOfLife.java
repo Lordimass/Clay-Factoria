@@ -120,7 +120,7 @@ public class UseBrushOfLife extends SimpleInstantInteraction {
         Bench bench = blockType.getBench();
         if (bench == null || bench.getType() == BenchType.Processing) return;
         JobComponent jobComponent = npcRef.getStore().getComponent(npcRef, JobComponent.getComponentType());
-        if (jobComponent != null && jobComponent.getFilterItem() == null) return;
+        if (jobComponent == null || jobComponent.getFilterItem() != null) return;
         player.sendMessage(Message
             .raw("Warning! You have set a crafting job but have not set an item. Interact with "
                 + "the automaton while holding the item you want it to craft to set it.")
