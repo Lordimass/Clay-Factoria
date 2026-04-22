@@ -8,6 +8,8 @@ import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.array.ArrayCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import lombok.Getter;
@@ -61,6 +63,12 @@ public class JobComponent implements Component<EntityStore> {
                 (comp) -> comp.filterItem)
             .documentation("ID of the NPC's current filter item.")
             .add()
+            .append(
+                new KeyedCodec<>("JobStartTime", Codec.LONG),
+                (comp, jobStartTime) -> comp.jobStartTime = jobStartTime,
+                (comp) -> comp.jobStartTime)
+            .documentation("The time at which the job started, if applicable.")
+            .add()
             .build();
     private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
     @Getter
@@ -83,9 +91,19 @@ public class JobComponent implements Component<EntityStore> {
     @Getter
     @Setter
     private String filterItem;
+    @Getter
+    @Setter
+    private long jobStartTime;
 
     public static ComponentType<EntityStore, JobComponent> getComponentType() {
         return ClayFactoria.ownerComponentType;
+    }
+
+    @Nullable
+    public static Job getCurrentJob(@Nonnull Ref<EntityStore> ref) {
+        Store<EntityStore> store = ref.getStore();
+        JobComponent jobComponent = store.getComponent(ref, getComponentType());
+        return jobComponent == null ? null : jobComponent.getCurrentJob();
     }
 
     @Nullable
@@ -108,6 +126,7 @@ public class JobComponent implements Component<EntityStore> {
         }
         jobComponent.isComplete = this.isComplete;
         jobComponent.filterItem = this.filterItem;
+        jobComponent.jobStartTime = this.jobStartTime;
         return jobComponent;
     }
 }

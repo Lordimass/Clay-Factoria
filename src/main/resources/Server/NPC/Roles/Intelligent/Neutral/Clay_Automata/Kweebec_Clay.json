@@ -9,7 +9,8 @@
     "AlertedSoundEvent": { "Compute": "AlertedSoundEvent" },
     "CanDoWork": true,
     "CanDoHarvest": true,
-    "CanSetFilterItem": true
+    "CanSetFilterItem": true,
+    "CanDoDeposit": true
   },
   "Parameters": {
     "NameTranslationKey": {

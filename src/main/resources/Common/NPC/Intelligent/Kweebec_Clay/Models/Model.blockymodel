@@ -165,18 +165,42 @@
                           "position": {"x": 2.97433, "y": -0.39158, "z": 0},
                           "orientation": {"x": 0, "y": 0, "z": -0.0654, "w": 0.99786},
                           "shape": {
-                            "type": "quad",
-                            "offset": {"x": 0, "y": 0, "z": 0},
-                            "stretch": {"x": 1, "y": 1, "z": 1},
+                            "type": "box",
+                            "offset": {"x": 0, "y": 0, "z": 0.5},
+                            "stretch": {"x": 1, "y": 1, "z": 0.1},
                             "settings": {
                               "isPiece": false,
-                              "size": {"x": 8, "y": 6},
-                              "normal": "+Z",
+                              "size": {"x": 8, "y": 6, "z": 1},
                               "isStaticBox": true
                             },
                             "textureLayout": {
+                              "back": {
+                                "offset": {"x": 39, "y": 51},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "right": {
+                                "offset": {"x": 39, "y": 51},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
                               "front": {
                                 "offset": {"x": 47, "y": 51},
+                                "mirror": {"x": true, "y": false},
+                                "angle": 0
+                              },
+                              "left": {
+                                "offset": {"x": 46, "y": 51},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "top": {
+                                "offset": {"x": 47, "y": 52},
+                                "mirror": {"x": true, "y": true},
+                                "angle": 0
+                              },
+                              "bottom": {
+                                "offset": {"x": 47, "y": 56},
                                 "mirror": {"x": true, "y": false},
                                 "angle": 0
                               }
@@ -214,18 +238,42 @@
                           "position": {"x": -2.97433, "y": -0.39158, "z": 0},
                           "orientation": {"x": 0, "y": 0, "z": 0.0654, "w": 0.99786},
                           "shape": {
-                            "type": "quad",
-                            "offset": {"x": 0, "y": 0, "z": 0},
-                            "stretch": {"x": 1, "y": 1, "z": 1},
+                            "type": "box",
+                            "offset": {"x": 0, "y": 0, "z": 0.5},
+                            "stretch": {"x": 1, "y": 1, "z": 0.1},
                             "settings": {
                               "isPiece": false,
-                              "size": {"x": 8, "y": 6},
-                              "normal": "+Z",
+                              "size": {"x": 8, "y": 6, "z": 1},
                               "isStaticBox": true
                             },
                             "textureLayout": {
+                              "back": {
+                                "offset": {"x": 47, "y": 51},
+                                "mirror": {"x": true, "y": false},
+                                "angle": 0
+                              },
+                              "right": {
+                                "offset": {"x": 46, "y": 51},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
                               "front": {
-                                "offset": {"x": 39, "y": 58},
+                                "offset": {"x": 39, "y": 51},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "left": {
+                                "offset": {"x": 39, "y": 51},
+                                "mirror": {"x": false, "y": false},
+                                "angle": 0
+                              },
+                              "top": {
+                                "offset": {"x": 47, "y": 52},
+                                "mirror": {"x": true, "y": true},
+                                "angle": 0
+                              },
+                              "bottom": {
+                                "offset": {"x": 39, "y": 56},
                                 "mirror": {"x": false, "y": false},
                                 "angle": 0
                               }
@@ -315,7 +363,7 @@
                       "id": "11",
                       "name": "L-Attachment",
                       "position": {"x": 1, "y": -12, "z": 0},
-                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                      "orientation": {"x": 0.70711, "y": 0, "z": 0, "w": 0.70711},
                       "shape": {
                         "type": "none",
                         "offset": {"x": 0, "y": 0, "z": 0},
@@ -407,7 +455,7 @@
                       "id": "14",
                       "name": "R-Attachment",
                       "position": {"x": -1.77387, "y": -11.83439, "z": 0},
-                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+                      "orientation": {"x": 0.70711, "y": 0, "z": 0, "w": 0.70711},
                       "shape": {
                         "type": "none",
                         "offset": {"x": 0, "y": 0, "z": 0},

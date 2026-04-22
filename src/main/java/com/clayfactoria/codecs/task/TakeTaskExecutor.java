@@ -1,59 +1,43 @@
 package com.clayfactoria.codecs.task;
 
-import com.clayfactoria.codecs.Job;
 import com.clayfactoria.codecs.Task;
 import com.clayfactoria.components.JobComponent;
 import com.clayfactoria.utils.ContainerSlot;
 import com.clayfactoria.utils.TaskHelper;
-import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
-import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 
 import java.util.List;
 import java.util.Objects;
 
-import static com.clayfactoria.utils.TaskHelper.getHeldItemstack;
-import static com.clayfactoria.utils.TaskHelper.getNPCEntity;
+import static com.clayfactoria.utils.TaskHelper.getItemContainerForCurrentJob;
 
 public class TakeTaskExecutor extends PointTaskExecutor {
 
     @Override
-    public boolean canPerformTask(Ref<EntityStore> ref) {
-        Store<EntityStore> store = ref.getStore();
-        Component<ChunkStore> blockEntity = TaskHelper.getBlockEntity(ref);
-        if (blockEntity == null) {
-            return false;
-        }
-
-        ItemStack heldItemStack = getHeldItemstack(store, ref);
-
-        ItemContainer container =
-            TaskHelper.getItemContainerFromComponent(blockEntity, ContainerSlot.Output);
-        Objects.requireNonNull(container, "Unexpected null ItemContainer");
+    public boolean canPerformTask(Ref<EntityStore> entityRef) {
+        ItemContainer itemContainer = TaskHelper.getItemContainerForCurrentJob(entityRef, ContainerSlot.Output);
+        Store<EntityStore> store = entityRef.getStore();
+        ItemStack heldItemStack = InventoryComponent.getItemInHand(store, entityRef);
 
         // There must be items available to be taken, and there must be space in hands
-        return heldItemStack == null && !container.isEmpty();
+        //FIXME: should check if the filter item is present anywhere in the container
+        return heldItemStack == null && !itemContainer.isEmpty();
     }
 
     @Override
     public boolean execute(Ref<EntityStore> entityRef) {
-        NPCEntity npcEntity = getNPCEntity(entityRef);
         Store<EntityStore> store = entityRef.getStore();
-        JobComponent jobComponent = Objects.requireNonNull(
-            store.getComponent(entityRef, JobComponent.getComponentType()));
-
-        Job currentJob = Objects.requireNonNull(jobComponent.getCurrentJob());
-
-        ItemContainer itemContainer = TaskHelper.getItemContainerAtPos(
-            Objects.requireNonNull(npcEntity.getWorld()),
-            currentJob.getLocation(), ContainerSlot.Output);
-        Objects.requireNonNull(itemContainer);
-
+        NPCEntity npcEntity = store.getComponent(entityRef, Objects.requireNonNull(NPCEntity.getComponentType()));
+        ItemContainer itemContainer = getItemContainerForCurrentJob(entityRef, ContainerSlot.Output);
+        JobComponent jobComponent = store.getComponent(entityRef, JobComponent.getComponentType());
+        assert npcEntity != null;
+        assert jobComponent != null;
         ItemContainer npcInventory = TaskHelper.getNPCInventory(npcEntity, store);
         return TaskHelper.transferItem(itemContainer, npcInventory, 1, jobComponent.getFilterItem());
     }

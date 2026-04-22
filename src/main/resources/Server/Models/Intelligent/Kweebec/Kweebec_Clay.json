@@ -115,6 +115,15 @@
         }
       ]
     },
+    "Craft": {
+      "Animations": [
+        {
+          "Animation": "NPC/Intelligent/Kweebec_Clay/Animations/Default/Craft.blockyanim",
+          "Looping": true,
+          "Speed": 1
+        }
+      ]
+    },
     "Alerted": {
       "Animations": [
         {

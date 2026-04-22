@@ -7,10 +7,9 @@ import com.hypixel.hytale.component.*;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
-import com.hypixel.hytale.server.core.asset.type.item.config.Item;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
-import com.hypixel.hytale.server.core.inventory.InventoryComponent.Hotbar;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -24,10 +23,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class TaskHelper {
 
@@ -40,53 +39,17 @@ public final class TaskHelper {
     public static NPCEntity getNPCEntity(
         @Nonnull Ref<EntityStore> ref) {
         Store<EntityStore> store = ref.getStore();
-        ComponentType<EntityStore, NPCEntity> component = NPCEntity.getComponentType();
-        Objects.requireNonNull(component, "NPCEntity Component Type was null");
-        NPCEntity npcEntity = store.getComponent(ref, component);
-        Objects.requireNonNull(npcEntity, "NPCEntity was null");
-        return npcEntity;
+        return getNPCEntity(ref, store);
     }
 
-    @Nullable
-    public static Component<ChunkStore> getBlockEntity(Ref<EntityStore> ref) {
-        Store<EntityStore> store = ref.getStore();
-        NPCEntity npcEntity = store.getComponent(ref, Objects.requireNonNull(NPCEntity.getComponentType()));
-        Objects.requireNonNull(npcEntity);
-        JobComponent jobComponent = store.getComponent(ref, JobComponent.getComponentType());
-        assert jobComponent != null;
-        World world = Objects.requireNonNull(npcEntity.getWorld());
-        Job job = jobComponent.getCurrentJob();
-        if (job == null) {
-            return null;
-        }
-        Vector3i pos = job.getLocation();
-        Vector3i baseBlock = BlockUtils.getBaseBlock(pos, world);
-        Holder<ChunkStore> holder = world.getBlockComponentHolder(baseBlock.x, baseBlock.y,
-            baseBlock.z);
-        if (holder == null) return null;
-
-        ItemContainerBlock itemContainerBlock = holder.getComponent(
-            ItemContainerBlock.getComponentType());
-        ProcessingBenchBlock processingBenchBlock = holder.getComponent(
-            ProcessingBenchBlock.getComponentType());
-
-        switch (job.getTask()) {
-            case POSITION:
-                return null;
-            case TAKE, DEPOSIT: // Find a container
-                if (itemContainerBlock != null) {
-                    return itemContainerBlock;
-                }
-                if (processingBenchBlock != null) {
-                    return processingBenchBlock;
-                }
-            case WORK: // Find a processing bench
-                if (processingBenchBlock != null) {
-                    return processingBenchBlock;
-                }
-        }
-
-        return null;
+    @Nonnull
+    public static NPCEntity getNPCEntity(
+        @Nonnull Ref<EntityStore> ref, @Nonnull ComponentAccessor<EntityStore> componentAccessor) {
+        ComponentType<EntityStore, NPCEntity> component = NPCEntity.getComponentType();
+        Objects.requireNonNull(component, "NPCEntity Component Type was null");
+        NPCEntity npcEntity = componentAccessor.getComponent(ref, component);
+        Objects.requireNonNull(npcEntity, "NPCEntity was null");
+        return npcEntity;
     }
 
     public static ItemContainer getItemContainerAtPos(
@@ -108,6 +71,22 @@ public final class TaskHelper {
             return null;
         }
         return getItemContainerFromComponent(processingBenchBlock, containerSlot);
+    }
+
+    public static ItemContainer getItemContainerForCurrentJob(Ref<EntityStore> entityRef, ContainerSlot containerSlot) {
+        NPCEntity npcEntity = getNPCEntity(entityRef);
+        Store<EntityStore> store = entityRef.getStore();
+        JobComponent jobComponent = Objects.requireNonNull(
+            store.getComponent(entityRef, JobComponent.getComponentType()));
+
+        Job currentJob = Objects.requireNonNull(jobComponent.getCurrentJob());
+        assert currentJob.getLocation() != null;
+        ItemContainer itemContainer = TaskHelper.getItemContainerAtPos(
+            Objects.requireNonNull(npcEntity.getWorld()),
+            currentJob.getLocation(),
+            containerSlot);
+        Objects.requireNonNull(itemContainer);
+        return itemContainer;
     }
 
     public static Ref<ChunkStore> getBlockComponentHolderDirectReference(World world, int x,
@@ -151,18 +130,6 @@ public final class TaskHelper {
         } else {
             return null;
         }
-    }
-
-    private static List<Vector3i> getAdjacentDirections() {
-        // Check surrounding blocks
-        Vector3i[] directions = {
-            new Vector3i(0, 0, -1), new Vector3i(1, 0, 0), new Vector3i(0, 0, 1), new Vector3i(-1, 0, 0)
-        };
-
-        // Shuffle order to prevent order of check being predictable
-        List<Vector3i> shuffled = Arrays.asList(directions);
-        Collections.shuffle(shuffled);
-        return shuffled;
     }
 
     public static boolean transferItem(ItemContainer source, ItemContainer target) {
@@ -234,12 +201,6 @@ public final class TaskHelper {
             .setState(npcRef, "Idle", null, store);
     }
 
-    public static ItemStack getHeldItemstack(Store<EntityStore> store, Ref<EntityStore> entityRef) {
-        Hotbar hotbar = store.getComponent(entityRef, Hotbar.getComponentType());
-        assert hotbar != null;
-        return hotbar.getActiveItem();
-    }
-
     public static List<String> getHotbarItems(Role role) {
         try {
             Field hotbarItemsField = Role.class.getDeclaredField("hotbarItems");
@@ -253,6 +214,19 @@ public final class TaskHelper {
             LOGGER.atSevere().log(e.getMessage());
             return null;
         }
+    }
+
+    public static boolean areExtraItemsInInventory(Ref<EntityStore> ref) {
+        Store<EntityStore> store = ref.getStore();
+        CombinedItemContainer inventory = InventoryComponent.getCombined(store, ref,
+            InventoryComponent.EVERYTHING);
+        AtomicBoolean otherItemsFound = new AtomicBoolean(false);
+        inventory.forEach((_, itemStack) -> {
+            if (itemStack != null && !itemStack.getItemId().contains("Sickle")) {
+                otherItemsFound.set(true);
+            }
+        });
+        return otherItemsFound.get();
     }
 
 }

@@ -21,7 +21,7 @@
       "children": [
         {
           "id": "2",
-          "name": "Pelvis",
+          "name": "EggPelvis",
           "position": {"x": 0, "y": -2, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
@@ -40,7 +40,7 @@
           "children": [
             {
               "id": "3",
-              "name": "Belly",
+              "name": "EggBelly",
               "position": {"x": 0, "y": 11.98078, "z": 0},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
               "shape": {
@@ -59,7 +59,7 @@
               "children": [
                 {
                   "id": "4",
-                  "name": "Chest",
+                  "name": "EggChest",
                   "position": {"x": 0, "y": 0, "z": 0},
                   "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                   "shape": {
@@ -110,7 +110,7 @@
                   "children": [
                     {
                       "id": "5",
-                      "name": "Head",
+                      "name": "EggHead",
                       "position": {"x": 0, "y": 0.66667, "z": -2},
                       "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                       "shape": {
@@ -261,7 +261,7 @@
                     },
                     {
                       "id": "10",
-                      "name": "L-Shoulder",
+                      "name": "Shoulder",
                       "position": {"x": 8.4981, "y": -10.95642, "z": -2},
                       "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                       "shape": {
@@ -280,7 +280,7 @@
                       "children": [
                         {
                           "id": "11",
-                          "name": "L-Arm",
+                          "name": "Arm",
                           "position": {"x": 0, "y": 0, "z": 0},
                           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                           "shape": {
@@ -355,7 +355,7 @@
                     },
                     {
                       "id": "13",
-                      "name": "R-Shoulder",
+                      "name": "Shoulder",
                       "position": {"x": -8.4981, "y": -10.95642, "z": -2},
                       "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                       "shape": {
@@ -374,7 +374,7 @@
                       "children": [
                         {
                           "id": "14",
-                          "name": "R-Arm",
+                          "name": "Arm",
                           "position": {"x": 0, "y": 0, "z": 0},
                           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                           "shape": {

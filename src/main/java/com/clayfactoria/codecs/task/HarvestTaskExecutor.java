@@ -24,7 +24,6 @@ import com.hypixel.hytale.server.npc.entities.NPCEntity;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HarvestTaskExecutor extends AreaTaskExecutor {
 
@@ -45,16 +44,7 @@ public class HarvestTaskExecutor extends AreaTaskExecutor {
         }
 
         // Check that it doesn't have any other items than the sickle in its inventory.
-        CombinedItemContainer inventory = InventoryComponent.getCombined(store, ref,
-            InventoryComponent.EVERYTHING);
-        AtomicBoolean otherItemsFound = new AtomicBoolean(false);
-        inventory.forEach((_, itemStack) -> {
-            if (itemStack != null && !itemStack.getItemId().contains("Sickle")) {
-                otherItemsFound.set(true);
-            }
-        });
-
-        return !otherItemsFound.get();
+        return !TaskHelper.areExtraItemsInInventory(ref);
     }
 
     @Override
@@ -87,16 +77,16 @@ public class HarvestTaskExecutor extends AreaTaskExecutor {
         return true;
     }
 
-  @Override
-  public Task relevantNextTask(List<Task> availableOptions) {
-      if (availableOptions.contains(Task.DEPOSIT)) {
-          return Task.DEPOSIT;
-      } else {
-          return Task.HARVEST;
-      }
-  }
+    @Override
+    public Task relevantNextTask(List<Task> availableOptions) {
+        if (availableOptions.contains(Task.DEPOSIT)) {
+            return Task.DEPOSIT;
+        } else {
+            return Task.HARVEST;
+        }
+    }
 
-  private void giveDrops(
+    private void giveDrops(
         @Nonnull Ref<EntityStore> ref,
         @Nonnull BlockType blockType
     ) {

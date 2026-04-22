@@ -605,6 +605,10 @@
             "Actions": [
               {
                 "Type": "SetFilterItem"
+              },
+              {
+                "Type": "SpawnParticles",
+                "ParticleSystem": "Rings_Fast"
               }
             ]
           },
