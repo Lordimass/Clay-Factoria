@@ -22,9 +22,9 @@
       {
         "Type": "Crafting",
         "Categories": [
-          "Tools"
+          "Arcane_Misc"
         ],
-        "Id": "Fieldcraft"
+        "Id": "Arcanebench"
       }
     ]
   },
