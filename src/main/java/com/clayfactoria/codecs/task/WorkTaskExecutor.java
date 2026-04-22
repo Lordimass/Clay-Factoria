@@ -3,6 +3,7 @@ package com.clayfactoria.codecs.task;
 import com.clayfactoria.codecs.Job;
 import com.clayfactoria.codecs.Task;
 import com.clayfactoria.components.JobComponent;
+import com.clayfactoria.utils.BlockUtils;
 import com.clayfactoria.utils.CraftingUtils;
 import com.clayfactoria.utils.TaskHelper;
 import com.hypixel.hytale.builtin.crafting.CraftingPlugin;
@@ -11,7 +12,6 @@ import com.hypixel.hytale.builtin.crafting.component.CraftingManager;
 import com.hypixel.hytale.builtin.crafting.component.ProcessingBenchBlock;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.AnimationSlot;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
@@ -20,13 +20,11 @@ import com.hypixel.hytale.server.core.entity.AnimationUtils;
 import com.hypixel.hytale.server.core.inventory.MaterialQuantity;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Objects;
 
@@ -96,7 +94,7 @@ public class WorkTaskExecutor extends PointTaskExecutor {
 
     private static void cleanUp(Ref<EntityStore> ref, World world, Vector3i blockPos, JobComponent jobComponent) {
         AnimationUtils.stopAnimation(ref, AnimationSlot.Status, ref.getStore());
-        setBlockInteractionState("default", world, blockPos);
+        BlockUtils.setBlockInteractionState("default", world, blockPos);
         jobComponent.setJobStartTime(0);
     }
 
@@ -131,10 +129,10 @@ public class WorkTaskExecutor extends PointTaskExecutor {
         if (jobComponent.getJobStartTime() == 0) {
             jobComponent.setJobStartTime(System.currentTimeMillis());
             if (recipe.getTimeSeconds() == 0) {
-                setBlockInteractionState("CraftCompletedInstant", world, pos);
+                BlockUtils.setBlockInteractionState("CraftCompletedInstant", world, pos);
             } else {
                 AnimationUtils.playAnimation(npcRef, AnimationSlot.Status, "Craft", false, store);
-                setBlockInteractionState("CraftCompleted", world, pos);
+                BlockUtils.setBlockInteractionState("CraftCompleted", world, pos);
             }
             return false;
         }
@@ -151,16 +149,6 @@ public class WorkTaskExecutor extends PointTaskExecutor {
 
         return TaskHelper.getBlockComponentHolderDirectReference(world, pos.x,
             pos.y, pos.z);
-    }
-
-    private static void setBlockInteractionState(@Nonnull String state, @Nonnull World world, @Nonnull Vector3i pos) {
-        WorldChunk worldChunk = world.getChunk(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
-        if (worldChunk != null) {
-            BlockType blockType = worldChunk.getBlockType(pos.x, pos.y, pos.z);
-            if (blockType != null) {
-                worldChunk.setBlockInteractionState(pos.x, pos.y, pos.z, blockType, state, true);
-            }
-        }
     }
 
     @Override

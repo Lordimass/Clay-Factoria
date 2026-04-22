@@ -2,6 +2,7 @@ package com.clayfactoria.utils;
 
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.math.shape.Box;
+import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.BlockPosition;
@@ -9,6 +10,9 @@ import com.hypixel.hytale.server.core.asset.type.blockhitbox.BlockBoundingBoxes;
 import com.hypixel.hytale.server.core.asset.type.blockhitbox.BlockBoundingBoxes.RotatedVariantBoxes;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+
+import javax.annotation.Nonnull;
 
 public final class BlockUtils {
 
@@ -145,5 +149,15 @@ public final class BlockUtils {
             return fromClone.toVector3i();
         }
         return null;
+    }
+
+    public static void setBlockInteractionState(@Nonnull String state, @Nonnull World world, @Nonnull Vector3i pos) {
+        WorldChunk worldChunk = world.getChunk(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
+        if (worldChunk != null) {
+            BlockType blockType = worldChunk.getBlockType(pos.x, pos.y, pos.z);
+            if (blockType != null) {
+                worldChunk.setBlockInteractionState(pos.x, pos.y, pos.z, blockType, state, false);
+            }
+        }
     }
 }
