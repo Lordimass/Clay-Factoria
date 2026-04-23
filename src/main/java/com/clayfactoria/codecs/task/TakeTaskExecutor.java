@@ -18,8 +18,7 @@ import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import java.util.List;
 import java.util.Objects;
 
-import static com.clayfactoria.utils.TaskHelper.getItemContainerForCurrentJob;
-import static com.clayfactoria.utils.TaskHelper.getNPCEntity;
+import static com.clayfactoria.utils.TaskHelper.*;
 
 public class TakeTaskExecutor extends PointTaskExecutor {
 
@@ -36,9 +35,10 @@ public class TakeTaskExecutor extends PointTaskExecutor {
         assert blockPos != null;
         BlockUtils.setBlockInteractionState("OpenWindow", world, blockPos);
 
-        // There must be items available to be taken, and there must be space in hands
-        //FIXME: should check if the filter item is present anywhere in the container
-        return heldItemStack == null && !itemContainer.isEmpty();
+        // There must be items available to be taken, there must be space in hands, and it must contain the filter item
+        JobComponent jobComponent = store.getComponent(entityRef, JobComponent.getComponentType());
+        String filterItem = jobComponent != null ? jobComponent.getFilterItem() : null;
+        return heldItemStack == null && !itemContainer.isEmpty() && checkForAnyFilterItem(itemContainer, filterItem);
     }
 
     @Override
