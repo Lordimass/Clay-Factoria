@@ -132,14 +132,16 @@ public final class TaskHelper {
         }
     }
 
-    public static boolean transferItem(ItemContainer source, ItemContainer target) {
-        for (short slot = 0; slot < source.getCapacity(); slot++) {
-            boolean result = transferItem(source, target, slot);
-            if (result) {
+    public static boolean checkForAnyFilterItem(ItemContainer itemContainer, String filterItemId) {
+        if (filterItemId == null) {
+            return true;
+        }
+        for (short slot = 0; slot < itemContainer.getCapacity(); slot++) {
+            if (itemContainer.getItemStack(slot) != null &&
+                itemContainer.getItemStack(slot).getItemId().equals(filterItemId)) {
                 return true;
             }
         }
-        // No item found in storage, return false for failure.
         return false;
     }
 
