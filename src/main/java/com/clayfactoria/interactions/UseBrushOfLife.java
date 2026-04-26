@@ -30,6 +30,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.awt.*;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.clayfactoria.utils.JobLocationHelper.isValidWalkLocation;
 
@@ -64,7 +65,11 @@ public class UseBrushOfLife extends SimpleInstantInteraction {
         Task task = brushComponent.getTask();
 
         // If no selected entity, let the user know...
-        Ref<EntityStore> npcRef = world.getEntityRef(brushComponent.getEntityId());
+        UUID entityId = brushComponent.getEntityId();
+        Ref<EntityStore> npcRef = null;
+        if (entityId != null) {
+            npcRef = world.getEntityRef(entityId);
+        }
         if (brushComponent.getEntityId() == null || npcRef == null) {
             player.sendMessage(Message
                 .raw("You must first select the automaton you want to command!")

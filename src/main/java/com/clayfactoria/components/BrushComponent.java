@@ -28,6 +28,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,6 +73,7 @@ public class BrushComponent implements Component<EntityStore> {
     private Task task = Task.TAKE;
     @Getter
     @Setter
+    @Nullable
     private UUID entityId;
     @Getter
     private Vector3i boxPoint1;
