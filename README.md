@@ -1,5 +1,9 @@
 ![](./logo-low-res.png)
 
+# Why the fork?
+I created this fork as a sort of "save point" for the state of the mod at the end of the Hytale New Worlds modding contest (we got 3rd in the NPC category!). Following this, any work on the mod in the original repository is not my own, since myself and the other main developer of the mod left the team at the end of the competition, so I wanted to make sure I had an easily viewable copy of the work we did :)
+
+# Clay Factoria
 Create clay automatons using the power of Gaia's life essence!
 
 Clay Factoria adds clay creatures to the world of Orbis. Powered by Gaia's life essence, these
